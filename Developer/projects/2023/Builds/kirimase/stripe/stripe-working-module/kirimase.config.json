@@ -1,0 +1,14 @@
+{
+  "hasSrc": true,
+  "packages": [
+    "prisma",
+    "shadcn-ui",
+    "lucia",
+    "trpc"
+  ],
+  "preferredPackageManager": "bun",
+  "rootPath": "src/",
+  "orm": "prisma",
+  "driver": "sqlite",
+  "auth": "lucia"
+}
