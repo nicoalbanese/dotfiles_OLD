@@ -15,6 +15,7 @@ export async function POST(request: Request) {
       signature,
       process.env.STRIPE_WEBHOOK_SECRET || ""
     );
+    console.log(event.type);
   } catch (err) {
     return new Response(
       `Webhook Error: ${err instanceof Error ? err.message : "Unknown Error"}`,
@@ -23,9 +24,10 @@ export async function POST(request: Request) {
   }
 
   const session = event.data.object as Stripe.Checkout.Session;
-  console.log("this is the session metadata -> ", session.metadata);
+  // console.log("this is the session metadata -> ", session);
 
-  if (!session?.metadata?.userId) {
+  if (!session?.metadata?.userId && session.customer == null) {
+    console.error("session customer", session.customer);
     console.error("no metadata for userid");
     return new Response(null, {
       status: 200,
@@ -36,20 +38,27 @@ export async function POST(request: Request) {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string
     );
+    const updatedData = {
+      stripeSubscriptionId: subscription.id,
+      stripeCustomerId: subscription.customer as string,
+      stripePriceId: subscription.items.data[0].price.id,
+      stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+    };
 
-    await db.user.update({
-      where: {
-        id: session.metadata.userId,
-      },
-      data: {
-        stripeSubscriptionId: subscription.id,
-        stripeCustomerId: subscription.customer as string,
-        stripePriceId: subscription.items.data[0].price.id,
-        stripeCurrentPeriodEnd: new Date(
-          subscription.current_period_end * 1000
-        ),
-      },
-    });
+    if (session?.metadata?.userId != null) {
+      await db.user.update({
+        where: { id: session.metadata.userId },
+        data: updatedData,
+      });
+    } else if (
+      typeof session.customer === "string" &&
+      session.customer != null
+    ) {
+      await db.user.update({
+        where: { stripeCustomerId: session.customer },
+        data: updatedData,
+      });
+    }
   }
 
   if (event.type === "invoice.payment_succeeded") {

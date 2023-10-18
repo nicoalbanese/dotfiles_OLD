@@ -12,18 +12,11 @@ interface ManageStripeSubscriptionActionProps {
 
 export async function POST(req: Request) {
   const body: ManageStripeSubscriptionActionProps = await req.json();
-  const {
-    isSubscribed,
-    isCurrentPlan,
-    stripeCustomerId,
-    userId,
-    stripePriceId,
-    email,
-  } = body;
+  const { isSubscribed, stripeCustomerId, userId, stripePriceId, email } = body;
   console.log(body);
-  const billingUrl = absoluteUrl("/billing");
+  const billingUrl = absoluteUrl("/account/billing");
 
-  if (isSubscribed && stripeCustomerId && isCurrentPlan) {
+  if (isSubscribed && stripeCustomerId) {
     const stripeSession = await stripe.billingPortal.sessions.create({
       customer: stripeCustomerId,
       return_url: billingUrl,

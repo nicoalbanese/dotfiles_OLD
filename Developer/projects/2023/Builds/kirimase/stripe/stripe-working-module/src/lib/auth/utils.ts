@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getPageSession } from "./lucia";
 
-type AuthSession = {
+export type AuthSession = {
   session: {
     user: {
       id: string;
