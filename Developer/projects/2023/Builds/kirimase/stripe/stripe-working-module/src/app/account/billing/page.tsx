@@ -1,5 +1,5 @@
+import SuccessToast from "@/app/api/billing/manage-subscription/SuccessToast";
 import { ManageUserSubscriptionButton } from "@/components/billing/ManageUserSubscription";
-// import SignInBtn from "@/components/sign-in-btn";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,22 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { storeSubscriptionPlans } from "@/config/subscriptions";
-import { getUserAuth } from "@/lib/auth/utils";
+import { checkAuth, getUserAuth } from "@/lib/auth/utils";
 import { getUserSubscriptionPlan } from "@/lib/stripe/subscription";
-import {
-  CheckCheckIcon,
-  CheckCircle,
-  CheckCircle2,
-  CheckCircle2Icon,
-  CheckCircleIcon,
-  CheckIcon,
-} from "lucide-react";
+import { CheckCircle2Icon } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function Billing() {
+  await checkAuth();
   const { session } = await getUserAuth();
   const subscriptionPlan = await getUserSubscriptionPlan();
 
@@ -32,6 +25,7 @@ export default async function Billing() {
 
   return (
     <div className="min-h-[calc(100vh-57px)] ">
+      <SuccessToast />
       <Link href="/account">
         <Button variant={"link"} className="px-0">
           Back
@@ -102,7 +96,11 @@ export default async function Billing() {
                 />
               ) : (
                 <div>
-                  <p className="text-center">Add email to continue</p>
+                  <Link href="/account">
+                    <Button className="text-center" variant="ghost">
+                      Add Email to Subscribe
+                    </Button>
+                  </Link>
                 </div>
               )}
             </CardFooter>

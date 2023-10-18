@@ -14,6 +14,10 @@ import { ModeToggle } from "@/components/ui/DarkModeToggle";
 
 export default async function Navbar() {
   const { session } = await getUserAuth();
+  const nameExists =
+    !!session?.user.name &&
+    session?.user.name.length > 5 &&
+    session?.user.name.indexOf(" ") > 0;
   if (session?.user) {
     return (
       <nav className="py-2 flex items-center justify-between transition-all duration-300">
@@ -27,9 +31,7 @@ export default async function Navbar() {
               <DropdownMenuTrigger>
                 <Avatar>
                   <AvatarFallback>
-                    {session.user.name &&
-                    session.user.name.length > 5 &&
-                    session.user.name.indexOf(" ") > 0
+                    {nameExists
                       ? session.user.name
                           ?.split(" ")
                           .map((word) => word[0].toUpperCase())
@@ -41,7 +43,7 @@ export default async function Navbar() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <span className="font-semibold">
-                    {session.user.name ?? "New User"}
+                    {nameExists ? session.user.name : "New User"}
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
